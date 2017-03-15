@@ -89,6 +89,8 @@ module Paperclip
     #     asset_host settings.
     #   * To get the full url from a paperclip'd object, use the
     #     image_path helper; this is what image_tag uses to generate the url for an img tag.
+    # * +endpoint+: This will set the endpoint on the aws gem. So it can be used on other
+    #   services that are complient with the S3 API.
     # * +path+: This is the key under the bucket in which the file will be stored. The
     #   URL will be constructed from the bucket and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
@@ -266,6 +268,9 @@ module Paperclip
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
+
+        options[:endpoint] = @options[:endpoint] if @options[:endpoint].present?
+
         instances[options] ||= ::Aws::S3::Resource.new(options)
       end
 
