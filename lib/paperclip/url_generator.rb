@@ -1,5 +1,20 @@
 require 'uri'
 
+module CustomURI
+  def self.escape(str)
+    unsafe = /[^\-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]/
+
+    str.gsub(unsafe) do
+      us = $&
+      tmp = ''
+      us.each_byte do |uc|
+        tmp << sprintf('%%%02X', uc)
+      end
+      tmp
+    end.force_encoding(Encoding::US_ASCII)
+  end
+end
+
 module Paperclip
   class UrlGenerator
     def initialize(attachment)
@@ -64,7 +79,7 @@ module Paperclip
       if url.respond_to?(:escape)
         url.escape
       else
-        URI.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
+        CustomURI.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
       end
     end
 
